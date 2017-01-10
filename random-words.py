@@ -61,8 +61,8 @@ def start():
     selection = random.sample(it_words, selection_len)
     with open(testfile, 'w') as f:
         for id, word in enumerate(selection):
-            f.write(word + '\n')
-            print('{id} | {word}'.format(id=id, word=word))
+            f.write(word.lower() + '\n')
+            print('{id} | {word}'.format(id=id, word=word.lower()))
     with open(starttime, 'w') as f:
         pickle.dump(datetime.datetime.now(), f)
 
