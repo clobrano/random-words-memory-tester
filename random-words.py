@@ -27,6 +27,7 @@ import docopt
 import logging
 import datetime
 import pickle
+import os
 
 flags = docopt.docopt(__doc__)
 if flags['--debug']:
@@ -49,7 +50,7 @@ report = '/home/carlo/Dropbox/random-word-report.txt'
 
 def start():
     ''' Generate a list of random words in the given language'''
-    words_files = { 'it' : './words.italian.txt'}
+    words_files = { 'it' : './words-it.txt'}
     words_file = words_files[flags['--lang']]
     dbg(words_file)
 
@@ -59,9 +60,9 @@ def start():
     selection_len = int(flags['--num'])
     selection = random.sample(it_words, selection_len)
     with open(testfile, 'w') as f:
-        for word in selection:
+        for id, word in enumerate(selection):
             f.write(word + '\n')
-            print(word)
+            print('{id} | {word}'.format(id=id, word=word))
     with open(starttime, 'w') as f:
         pickle.dump(datetime.datetime.now(), f)
 
@@ -78,21 +79,24 @@ def test():
     try:
         with open(testfile) as f:
             selection = f.read().splitlines()
+        os.remove(testfile)
     except IOError:
         fatal('Could not find any generated random words. Run the script with --generate flag first')
 
+    correct = 0
     for id, word in enumerate(selection):
         guess = raw_input('word #{num}: '.format(num=id + 1))
         if guess != word:
             info('{word} != {guess}'.format(word=word, guess=guess))
-            break
+        else:
+            correct += 1
 
     delta = str(now - start_time).split('.')[0]
     today = datetime.datetime.today().strftime('%Y-%m-%d')
 
-    info('Correctly guessed {num}/{full} words in {sec}'.format(num=id, full=len(word), sec=delta))
+    info('Correctly guessed {num}/{full} words in {sec}'.format(num=correct, full=len(selection), sec=delta))
     with open(report, 'a') as f:
-        f.write('{date} {num}/{full} words in {sec}\n'.format(date=today, num=id, full=len(word), sec=delta))
+        f.write('{date} {num}/{full} words in {sec}\n'.format(date=today, num=correct, full=len(selection), sec=delta))
 
 
 
