@@ -21,13 +21,14 @@ options:
 # Clear list
 # Check whether recalled words are correct (in order)
 
-import sys
-import random
+import datetime
 import docopt
 import logging
-import datetime
-import pickle
 import os
+import pickle
+import random
+import sys
+import time
 
 flags = docopt.docopt(__doc__)
 if flags['--debug']:
@@ -44,9 +45,10 @@ def fatal(msg):
     logger.error(msg)
     sys.exit(1)
 
+home = os.path.expanduser('~/')
 testfile = '/tmp/random-words.' + flags['--lang']
-starttime = '/tmp/random-words.start'
-report = '/home/carlo/Dropbox/random-word-report.txt'
+starttime = os.path.join('/', 'tmp','random-words.start')
+report = os.path.join(home, 'Dropbox', 'random-word-report.txt')
 
 def start():
     ''' Generate a list of random words in the given language'''
@@ -69,6 +71,8 @@ def start():
 def test():
     '''Test memory and recall on a list of words'''
     now = datetime.datetime.now()
+    info('Wait 60 seconds before begin test')
+    time.sleep(60)
     try:
         with open(starttime, 'r') as f:
             start_time = pickle.load(f)
