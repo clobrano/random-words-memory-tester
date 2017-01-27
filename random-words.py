@@ -5,14 +5,14 @@ Random word training.
 Generate a list of random words and test your memory and recall
 usage:
     generator.py [--lang=<lang>] --start [--debug] [--num=<num>]
-    generator.py [--lang=<lang>] --test [--debug]
+    generator.py [--lang=<lang>] [--test=<time>] [--debug]
 
 options:
     -d, --debug                 enable debug logging
     -l <lang>, --lang=<lang>    language of the words [default: it]
     -n <num>, --num=<num>       Number of words in the list [default: 20]
     -s, --start                 generate a list of random words and start the timer
-    -t, --test                  test your knowledge of the last random word list
+    -t <time>, --test=<time>    test your knowledge of the last random word list after time [default: 5]
 '''
 # Read file
 # randomly select N words
@@ -65,27 +65,39 @@ def start():
         for id, word in enumerate(selection):
             f.write(word.lower() + '\n')
             print('{id:3} | {word:<}'.format(id=id, word=word.lower()))
+
+    start_time = datetime.datetime.now()
     with open(starttime, 'w') as f:
         pickle.dump(datetime.datetime.now(), f)
+
+    for first, second in zip(*[iter(selection)]*2):
+        print('{} | {}'.format(first, second))
+        raw_input()
+
+    stop_time = datetime.datetime.now()
+    delta = stop_time - start_time
+    print('{} to memorize all'.format(str(delta).split('.')[0]))
+    print('Now clear all and start test')
+
 
 def test():
     '''Test memory and recall on a list of words'''
     now = datetime.datetime.now()
-    info('Wait 60 seconds before begin test')
-    time.sleep(60)
+    info('Wait {time} seconds before begin test'.format(time=flags['--test']))
+    time.sleep(int(flags['--test']))
+
     try:
         with open(starttime, 'r') as f:
             start_time = pickle.load(f)
     except IOError:
         fatal('Test is not started yet. Run --start first')
 
-
     try:
         with open(testfile) as f:
             selection = f.read().splitlines()
         os.remove(testfile)
     except IOError:
-        fatal('Could not find any generated random words. Run the script with --generate flag first')
+        fatal('Could not find any generated random words. Run the script with --start flag first')
 
     correct = 0
     for id, word in enumerate(selection):
