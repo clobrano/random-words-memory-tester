@@ -1013,7 +1013,6 @@ comporre
 escludere
 figurare
 insistere
-	
 àncora
 senza
 bene
